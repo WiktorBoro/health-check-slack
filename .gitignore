@@ -1,3 +1,6 @@
 configuration.json
 health_check_logs
 .idea
+.idea/*
+__pycache__
+__pycache__/*

@@ -2,13 +2,13 @@
 import logging
 import pathlib
 import sys
-import types
 from json import load
 from typing import List
 
 from dtos import SlackConnectorConfigDTO, HealthCheckConfigDTO
 from health_check import HealthCheck
 from slack_connector import SlackConnector
+import to_checks_types as types
 
 config_file_name = "configuration.json"
 logs_file_name = "health_check_logs"
