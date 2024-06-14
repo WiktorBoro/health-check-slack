@@ -1,0 +1,32 @@
+{
+  "slack_webhook_url": "https://hooks.slack.com/services/AAAAAA/BBBBBBBB/CCCCCCCCCC",
+  "health_check_config": {
+    "timeout": 3
+  },
+  "slack_connector_config": {
+    "send_healthy": false,
+    "send_unhealthy": true,
+    "send_if_there_no_unhealthy": false,
+    "hello_message": ":wave: Hi, we are connected! Let's go! :tada:",
+    "healthy_message": "URL {url} is fine :heart:",
+    "unhealthy_message": "URL {url} is dead :firecracker::skull_and_crossbones::firecracker:",
+    "no_unhealthy_message": "Everything is fine :green_heart:"
+  },
+  "to_checks": [
+    {
+      "url_base": "https://{param}.my_backend.com/",
+      "params": [
+        "backend_1",
+        "backend_2",
+        "back_end"
+      ]
+    },
+    {
+      "url_base": "https://my_app_fronted.com/rest_of_url/{param}",
+      "params": [
+        "front_1",
+        "front_2"
+      ]
+    }
+  ]
+}
