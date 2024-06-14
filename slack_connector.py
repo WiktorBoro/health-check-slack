@@ -29,21 +29,28 @@ class SlackConnector:
             self._send_results(health_results=health_check_dto.healthy)
         if self.config.send_unhealthy:
             self._send_results(health_results=health_check_dto.unhealthy)
-        if self.config.send_if_there_no_unhealthy and not health_check_dto.unhealthy:
+
+    def hello_message(self):
+        self._send(text=self.config.hello_message or self.DEFAULT_HELLO_MESSAGE)
+
+    def send_if_there_no_unhealthy(self):
+        if self.config.send_if_there_no_unhealthy:
             self._send(
                 text=self.config.no_unhealthy_message
                 or self.DEFAULT_NO_UNHEALTHY_MESSAGE
             )
-
-    def hello_message(self):
-        self._send(text=self.config.hello_message or self.DEFAULT_HELLO_MESSAGE)
 
     def _send_results(self, *, health_results: List[HealthResultDTO]):
         for health_result in health_results:
             text = {
                 True: self.DEFAULT_HEALTHY_MESSAGE or self.config.healthy_message,
                 False: self.DEFAULT_UNHEALTHY_MESSAGE or self.config.unhealthy_message,
-            }[health_result.is_healthy]
+            }[health_result.is_healthy].format(
+                url=health_result.url,
+                param=health_result.param,
+                status_code=health_result.status_code,
+                is_healthy=health_result.is_healthy,
+            )
             self._send(text=text)
 
     def _send(self, *, text: str):

@@ -12,7 +12,6 @@ import to_checks_types as types
 
 config_file_name = "configuration.json"
 logs_file_name = "health_check_logs"
-logging.basicConfig(filename=logs_file_name, encoding="utf-8", level=logging.INFO)
 
 
 class Main:
@@ -27,6 +26,7 @@ class Main:
         self.health_check = health_check
 
     def execute(self, *, to_checks: List[types.ToChecksTypedDict]):
+        any_unhealthy = []
         for to_check in to_checks:
             health_check_dto = self.health_check.execute(
                 url_base=to_check["url_base"], params=to_check["params"]
@@ -34,6 +34,10 @@ class Main:
             self.slack_connector.send_health_check_report(
                 health_check_dto=health_check_dto
             )
+            any_unhealthy.extend(health_check_dto.unhealthy)
+
+        if not any_unhealthy:
+            self.slack_connector.send_if_there_no_unhealthy()
 
     def test(self):
         self.slack_connector.hello_message()
@@ -44,6 +48,14 @@ if __name__ == "__main__":
         param = sys.argv[1]
     except IndexError:
         param = ""
+
+    current_path = pathlib.Path(__file__).parent.resolve()
+
+    logging.basicConfig(
+        filename=f"{current_path}/{logs_file_name}",
+        encoding="utf-8",
+        level=logging.INFO,
+    )
 
     with open(
         f"{pathlib.Path(__file__).parent.resolve()}/{config_file_name}", "r"
