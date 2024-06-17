@@ -15,9 +15,14 @@ class SlackConnector:
         "URL {url} is dead :firecracker::skull_and_crossbones::firecracker:"
     )
     DEFAULT_NO_UNHEALTHY_MESSAGE = "Everything is fine :green_heart:"
+    DEFAULT_BACK_TO_HEALTHY_MESSAGE = (
+        "URL {url}, back to live! :tada: Total dead time {how_long_was_unhealthy}"
+    )
+    DEFAULT_STILL_UNHEALTHY_MESSAGE = "URL {url}, is still dead :firecracker::skull_and_crossbones::firecracker: Total dead time {how_long_was_unhealthy}"
 
     def __init__(
         self,
+        repository,
         slack_webhook_url: str,
         slack_connector_config: SlackConnectorConfigDTO,
     ):
@@ -25,10 +30,28 @@ class SlackConnector:
         self.config = slack_connector_config
 
     def send_health_check_report(self, health_check_dto: HealthCheckDTO):
+        if self.config.send_back_to_healthy:
+            self._send_results(
+                health_results=health_check_dto.back_to_healthy,
+                message=self.DEFAULT_BACK_TO_HEALTHY_MESSAGE
+                or self.config.back_to_healthy_message,
+            )
+        if self.config.send_still_unhealthy:
+            self._send_results(
+                health_results=health_check_dto.still_unhealthy,
+                message=self.DEFAULT_STILL_UNHEALTHY_MESSAGE
+                or self.config.still_unhealthy_message,
+            )
         if self.config.send_healthy:
-            self._send_results(health_results=health_check_dto.healthy)
+            self._send_results(
+                health_results=health_check_dto.healthy,
+                message=self.DEFAULT_HEALTHY_MESSAGE or self.config.healthy_message,
+            )
         if self.config.send_unhealthy:
-            self._send_results(health_results=health_check_dto.unhealthy)
+            self._send_results(
+                health_results=health_check_dto.unhealthy,
+                message=self.DEFAULT_UNHEALTHY_MESSAGE or self.config.unhealthy_message,
+            )
 
     def hello_message(self):
         self._send(text=self.config.hello_message or self.DEFAULT_HELLO_MESSAGE)
@@ -40,18 +63,21 @@ class SlackConnector:
                 or self.DEFAULT_NO_UNHEALTHY_MESSAGE
             )
 
-    def _send_results(self, *, health_results: List[HealthResultDTO]):
+    def _send_results(
+        self,
+        *,
+        message: str,
+        health_results: List[HealthResultDTO],
+    ):
         for health_result in health_results:
-            text = {
-                True: self.DEFAULT_HEALTHY_MESSAGE or self.config.healthy_message,
-                False: self.DEFAULT_UNHEALTHY_MESSAGE or self.config.unhealthy_message,
-            }[health_result.is_healthy].format(
-                url=health_result.url,
-                param=health_result.param,
-                status_code=health_result.status_code,
-                is_healthy=health_result.is_healthy,
+            self._send(
+                text=message.format(
+                    url=health_result.url,
+                    param=health_result.param,
+                    status_code=health_result.status_code,
+                    is_healthy=health_result.is_healthy,
+                )
             )
-            self._send(text=text)
 
     def _send(self, *, text: str):
         try:

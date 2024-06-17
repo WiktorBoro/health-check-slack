@@ -2,16 +2,19 @@
 import logging
 import pathlib
 import sys
+from datetime import datetime
 from json import load
 from typing import List
 
-from dtos import SlackConnectorConfigDTO, HealthCheckConfigDTO
+from database import Database
+from dtos import SlackConnectorConfigDTO, HealthCheckConfigDTO, HealthResultDTO
 from health_check import HealthCheck
 from slack_connector import SlackConnector
 import to_checks_types as types
 
 config_file_name = "configuration.json"
 logs_file_name = "health_check_logs"
+current_path = pathlib.Path(__file__).parent.resolve()
 
 
 class Main:
@@ -19,25 +22,35 @@ class Main:
     def __init__(
         self,
         *,
-        slack_connector: SlackConnector,
+        repository,
         health_check: HealthCheck,
+        slack_connector: SlackConnector,
     ):
+        self.repository = repository
         self.slack_connector = slack_connector
         self.health_check = health_check
 
     def execute(self, *, to_checks: List[types.ToChecksTypedDict]):
         any_unhealthy = []
+        back_to_healthy = []
+        current_unhealthy_urls = self.repository.current_unhealthy_urls
         for to_check in to_checks:
             health_check_dto = self.health_check.execute(
-                url_base=to_check["url_base"], params=to_check["params"]
+                params=to_check["params"],
+                url_base=to_check["url_base"],
+                current_unhealthy_urls=current_unhealthy_urls,
             )
             self.slack_connector.send_health_check_report(
                 health_check_dto=health_check_dto
             )
             any_unhealthy.extend(health_check_dto.unhealthy)
+            back_to_healthy.append(health_check_dto.back_to_healthy)
 
         if not any_unhealthy:
             self.slack_connector.send_if_there_no_unhealthy()
+
+        self.repository.add_unhealthy(any_unhealthy=any_unhealthy)
+        self.repository.remove_unhealthy(back_to_healthy=back_to_healthy)
 
     def test(self):
         self.slack_connector.hello_message()
@@ -49,17 +62,15 @@ if __name__ == "__main__":
     except IndexError:
         param = ""
 
-    current_path = pathlib.Path(__file__).parent.resolve()
-
     logging.basicConfig(
         filename=f"{current_path}/{logs_file_name}",
         encoding="utf-8",
         level=logging.INFO,
     )
 
-    with open(
-        f"{pathlib.Path(__file__).parent.resolve()}/{config_file_name}", "r"
-    ) as config_file:
+    repository = Database(current_path=current_path)
+
+    with open(f"{current_path}/{config_file_name}", "r") as config_file:
         config = load(config_file)
 
     try:
@@ -77,6 +88,7 @@ if __name__ == "__main__":
     )
     health_check_config = HealthCheckConfigDTO(**config.get("health_check_config", {}))
     slack_connector = SlackConnector(
+        repository=repository,
         slack_webhook_url=slack_webhook_url,
         slack_connector_config=slack_connector_config,
     )
@@ -85,6 +97,7 @@ if __name__ == "__main__":
     )
 
     main = Main(
+        repository=repository,
         slack_connector=slack_connector,
         health_check=health_check,
     )
@@ -93,3 +106,5 @@ if __name__ == "__main__":
         main.test()
     else:
         main.execute(to_checks=to_checks)
+
+    repository.commit()
