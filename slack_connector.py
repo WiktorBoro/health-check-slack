@@ -26,6 +26,7 @@ class SlackConnector:
         slack_webhook_url: str,
         slack_connector_config: SlackConnectorConfigDTO,
     ):
+        self.repository = repository
         self.connector = WebhookClient(url=slack_webhook_url)
         self.config = slack_connector_config
 
@@ -38,7 +39,9 @@ class SlackConnector:
             )
         if self.config.send_still_unhealthy:
             self._send_results(
-                health_results=health_check_dto.still_unhealthy,
+                health_results=self._get_still_unhealthy_ready_to_send(
+                    still_unhealthy=health_check_dto.still_unhealthy
+                ),
                 message=self.DEFAULT_STILL_UNHEALTHY_MESSAGE
                 or self.config.still_unhealthy_message,
             )
@@ -52,6 +55,17 @@ class SlackConnector:
                 health_results=health_check_dto.unhealthy,
                 message=self.DEFAULT_UNHEALTHY_MESSAGE or self.config.unhealthy_message,
             )
+
+    def _get_still_unhealthy_ready_to_send(
+        self,
+        *,
+        still_unhealthy: List[HealthResultDTO],
+    ) -> List[HealthResultDTO]:
+        return [
+            unhealthy
+            for unhealthy in still_unhealthy
+            if self.repository.is_send_still_unhealthy_required(url=unhealthy.url)
+        ]
 
     def hello_message(self):
         self._send(text=self.config.hello_message or self.DEFAULT_HELLO_MESSAGE)
@@ -76,6 +90,9 @@ class SlackConnector:
                     param=health_result.param,
                     status_code=health_result.status_code,
                     is_healthy=health_result.is_healthy,
+                    how_long_was_unhealthy=self.repository.get_how_long_was_unhealthy(
+                        url=health_result.url
+                    ),
                 )
             )
 

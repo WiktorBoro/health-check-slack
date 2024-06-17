@@ -33,17 +33,31 @@ class Database:
         ) as database_file:
             database_file.write(dumps(self.data))
 
+    @property
     def current_unhealthy_urls(self) -> List[str]:
         return [
             current_unhealthy
             for current_unhealthy in self.data.get("to_checks", {}).keys()
         ]
 
-    def add_unhealthy(self, *, any_unhealthy: List[HealthResultDTO]):
-        current_unhealthy_urls = self.current_unhealthy_urls()
-        for unhealthy in any_unhealthy:
+    def add_unhealthy(self, *, new_unhealthy: List[HealthResultDTO]):
+        current_unhealthy_urls = self.current_unhealthy_urls
+        for unhealthy in new_unhealthy:
             if unhealthy.url not in current_unhealthy_urls:
                 self.data["to_checks"][unhealthy.url]["unhealthy_at"] = str(
+                    datetime.now()
+                )
+                self.data["to_checks"][unhealthy.url]["last_send_at"] = str(
+                    datetime.now()
+                )
+
+    def update_still_unhealthy_last_send(
+        self, *, still_unhealthy: List[HealthResultDTO]
+    ):
+        current_unhealthy_urls = self.current_unhealthy_urls
+        for unhealthy in still_unhealthy:
+            if unhealthy.url in current_unhealthy_urls:
+                self.data["to_checks"][unhealthy.url]["last_send_at"] = str(
                     datetime.now()
                 )
 

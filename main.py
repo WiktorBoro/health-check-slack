@@ -31,8 +31,9 @@ class Main:
         self.health_check = health_check
 
     def execute(self, *, to_checks: List[types.ToChecksTypedDict]):
-        any_unhealthy = []
+        new_unhealthy = []
         back_to_healthy = []
+        still_unhealthy = []
         current_unhealthy_urls = self.repository.current_unhealthy_urls
         for to_check in to_checks:
             health_check_dto = self.health_check.execute(
@@ -43,13 +44,17 @@ class Main:
             self.slack_connector.send_health_check_report(
                 health_check_dto=health_check_dto
             )
-            any_unhealthy.extend(health_check_dto.unhealthy)
-            back_to_healthy.append(health_check_dto.back_to_healthy)
+            new_unhealthy.extend(health_check_dto.unhealthy)
+            still_unhealthy.extend(health_check_dto.still_unhealthy)
+            back_to_healthy.extend(health_check_dto.back_to_healthy)
 
-        if not any_unhealthy:
+        if not any([new_unhealthy, still_unhealthy]):
             self.slack_connector.send_if_there_no_unhealthy()
 
-        self.repository.add_unhealthy(any_unhealthy=any_unhealthy)
+        self.repository.add_unhealthy(new_unhealthy=new_unhealthy)
+        self.repository.update_still_unhealthy_last_send(
+            still_unhealthy=still_unhealthy
+        )
         self.repository.remove_unhealthy(back_to_healthy=back_to_healthy)
 
     def test(self):

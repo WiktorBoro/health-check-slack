@@ -6,11 +6,16 @@
   "slack_connector_config": {
     "send_healthy": false,
     "send_unhealthy": true,
+    "send_still_unhealthy": true,
+    "send_still_unhealthy_delay": 10,
+    "send_back_to_healthy": true,
     "send_if_there_no_unhealthy": false,
     "hello_message": ":wave: Hi, we are connected! Let's go! :tada:",
     "healthy_message": "URL {url} is fine :heart:",
     "unhealthy_message": "URL {url} is dead :firecracker::skull_and_crossbones::firecracker:",
-    "no_unhealthy_message": "Everything is fine :green_heart:"
+    "no_unhealthy_message": "Everything is fine :green_heart:",
+    "back_to_healthy_message": "URL {url}, back to live! :tada: Total dead time {how_long_was_unhealthy}",
+    "still_unhealthy_message": "URL {url}, is still dead :firecracker::skull_and_crossbones::firecracker: Total dead time {how_long_was_unhealthy}"
   },
   "to_checks": [
     {
