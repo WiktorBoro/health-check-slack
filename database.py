@@ -76,7 +76,7 @@ class Database:
 
     def remove_unhealthy(self, *, back_to_healthy: List[HealthResultDTO]):
         for healthy in back_to_healthy:
-            self.data["to_checks"].pop(healthy, None)
+            self.data["to_checks"].pop(healthy.url, None)
 
     def get_how_long_was_unhealthy(self, *, url: str) -> float:
         return round(
