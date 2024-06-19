@@ -69,7 +69,7 @@ class Database:
     ):
         current_unhealthy_urls = self.current_unhealthy_urls
         for unhealthy in still_unhealthy:
-            if unhealthy.url in current_unhealthy_urls:
+            if unhealthy.is_sent_to_slack and unhealthy.url in current_unhealthy_urls:
                 self.data["to_checks"][unhealthy.url][
                     "last_send_at"
                 ] = datetime.now().isoformat()

@@ -1,7 +1,7 @@
 # dtos.py
 from typing import List
 
-from attr import frozen
+from attr import frozen, define
 
 
 @frozen(kw_only=True)
@@ -25,12 +25,13 @@ class HealthCheckConfigDTO:
     timeout: int = 3
 
 
-@frozen(kw_only=True)
+@define
 class HealthResultDTO:
     is_healthy: bool
     status_code: int
     url: str
     param: str
+    is_sent_to_slack: bool = False
 
 
 @frozen(kw_only=True)

@@ -75,6 +75,8 @@ if __name__ == "__main__":
         filename=f"{current_path}/{logs_file_name}", when="M", interval=1
     )
     handler.setLevel(logging.INFO)
+    logger = logging.getLogger()
+    logger.addHandler(handler)
 
     repository = Database(current_path=current_path)
 

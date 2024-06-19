@@ -98,6 +98,7 @@ class SlackConnector:
                     ),
                 )
             )
+            health_result.is_sent_to_slack = True
 
     def _send(self, *, text: str):
         try:
