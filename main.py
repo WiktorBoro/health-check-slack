@@ -4,6 +4,7 @@ import pathlib
 import sys
 from datetime import datetime
 from json import load
+from logging.handlers import TimedRotatingFileHandler
 from typing import List
 
 from database import Database
@@ -18,7 +19,6 @@ current_path = pathlib.Path(__file__).parent.resolve()
 
 
 class Main:
-
     def __init__(
         self,
         *,
@@ -71,6 +71,11 @@ if __name__ == "__main__":
         filename=f"{current_path}/{logs_file_name}",
         encoding="utf-8",
         level=logging.INFO,
+        handlers=[
+            TimedRotatingFileHandler(
+                filename=f"{current_path}/{logs_file_name}", when="M", interval=1
+            )
+        ],
     )
 
     repository = Database(current_path=current_path)
