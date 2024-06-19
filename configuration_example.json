@@ -14,8 +14,8 @@
     "healthy_message": "URL {url} is fine :heart:",
     "unhealthy_message": "URL {url} is dead :firecracker::skull_and_crossbones::firecracker:",
     "no_unhealthy_message": "Everything is fine :green_heart:",
-    "back_to_healthy_message": "URL {url}, back to live! :tada: Total dead time {how_long_was_unhealthy}",
-    "still_unhealthy_message": "URL {url}, is still dead :firecracker::skull_and_crossbones::firecracker: Total dead time {how_long_was_unhealthy}"
+    "back_to_healthy_message": "URL {url}, back to live! :tada: Total dead time {how_long_was_unhealthy} min",
+    "still_unhealthy_message": "URL {url}, is still dead :firecracker::skull_and_crossbones::firecracker: Total dead time {how_long_was_unhealthy} min"
   },
   "to_checks": [
     {

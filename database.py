@@ -79,15 +79,19 @@ class Database:
             self.data["to_checks"].pop(healthy, None)
 
     def get_how_long_was_unhealthy(self, *, url: str) -> float:
-        return (
-            datetime.now()
-            - datetime.strptime(
-                self.data["to_checks"]
-                .get(url, {})
-                .get("unhealthy_at", datetime.now().isoformat()),
-                self.DATE_FORMAT,
-            )
-        ).total_seconds() / 60
+        return round(
+            (
+                datetime.now()
+                - datetime.strptime(
+                    self.data["to_checks"]
+                    .get(url, {})
+                    .get("unhealthy_at", datetime.now().isoformat()),
+                    self.DATE_FORMAT,
+                )
+            ).total_seconds()
+            / 60,
+            2,
+        )
 
     def is_send_still_unhealthy_required(
         self,

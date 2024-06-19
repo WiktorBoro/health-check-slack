@@ -72,7 +72,9 @@ if __name__ == "__main__":
         level=logging.INFO,
     )
     handler = TimedRotatingFileHandler(
-        filename=f"{current_path}/{logs_file_name}", when="M", interval=1
+        filename=f"{current_path}/{logs_file_name}",
+        when="D",
+        interval=30,
     )
     handler.setLevel(logging.INFO)
     logger = logging.getLogger()

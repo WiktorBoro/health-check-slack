@@ -16,9 +16,9 @@ class SlackConnector:
     )
     DEFAULT_NO_UNHEALTHY_MESSAGE = "Everything is fine :green_heart:"
     DEFAULT_BACK_TO_HEALTHY_MESSAGE = (
-        "URL {url}, back to live! :tada: Total dead time {how_long_was_unhealthy}"
+        "URL {url}, back to live! :tada: Total dead time {how_long_was_unhealthy} min"
     )
-    DEFAULT_STILL_UNHEALTHY_MESSAGE = "URL {url}, is still dead :firecracker::skull_and_crossbones::firecracker: Total dead time {how_long_was_unhealthy}"
+    DEFAULT_STILL_UNHEALTHY_MESSAGE = "URL {url}, is still dead :firecracker::skull_and_crossbones::firecracker: Total dead time {how_long_was_unhealthy} min"
 
     def __init__(
         self,
