@@ -2,13 +2,12 @@
 import logging
 import pathlib
 import sys
-from datetime import datetime
 from json import load
 from logging.handlers import TimedRotatingFileHandler
 from typing import List
 
 from database import Database
-from dtos import SlackConnectorConfigDTO, HealthCheckConfigDTO, HealthResultDTO
+from dtos import SlackConnectorConfigDTO, HealthCheckConfigDTO
 from health_check import HealthCheck
 from slack_connector import SlackConnector
 import to_checks_types as types
@@ -71,12 +70,11 @@ if __name__ == "__main__":
         filename=f"{current_path}/{logs_file_name}",
         encoding="utf-8",
         level=logging.INFO,
-        handlers=[
-            TimedRotatingFileHandler(
-                filename=f"{current_path}/{logs_file_name}", when="M", interval=1
-            )
-        ],
     )
+    handler = TimedRotatingFileHandler(
+        filename=f"{current_path}/{logs_file_name}", when="M", interval=1
+    )
+    handler.setLevel(logging.INFO)
 
     repository = Database(current_path=current_path)
 

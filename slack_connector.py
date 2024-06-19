@@ -64,7 +64,10 @@ class SlackConnector:
         return [
             unhealthy
             for unhealthy in still_unhealthy
-            if self.repository.is_send_still_unhealthy_required(url=unhealthy.url)
+            if self.repository.is_send_still_unhealthy_required(
+                url=unhealthy.url,
+                config=self.config,
+            )
         ]
 
     def hello_message(self):
