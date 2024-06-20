@@ -17,10 +17,13 @@ You can also see logs [section](#5-logs).
 2. Click `Create your Slack app`
 3. Click `Create new app` and follow the steps
 4. In left panel slack app go to `Incoming webhooks`
+
 ![img.png](readme_image/img.png)
-5. Turn On `Activate Incoming Webhooks`
+
+6. Turn On `Activate Incoming Webhooks`
 6. `Add New Webhook to Workspace`
 7. After choose channel you can copy your url
+
 ![img_1.png](readme_image/img_1.png)
 
 ## 3. Create your configuration.json file
