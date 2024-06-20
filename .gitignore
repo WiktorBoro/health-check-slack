@@ -1,4 +1,4 @@
-configuration.json
+*configuration.json*
 health_check_logs
 *.idea
 .idea/*
