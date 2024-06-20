@@ -13,7 +13,7 @@ from slack_connector import SlackConnector
 import to_checks_types as types
 
 config_file_name = "configuration.json"
-logs_file_name = "health_check_logs"
+logs_file_name = "logs"
 current_path = pathlib.Path(__file__).parent.resolve()
 
 
