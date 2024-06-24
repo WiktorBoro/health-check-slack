@@ -119,4 +119,5 @@ if __name__ == "__main__":
     else:
         main.execute(to_checks=to_checks)
 
+    logging.info("-----------------------------------------------")
     repository.commit()
