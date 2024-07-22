@@ -90,7 +90,6 @@ class Database:
                 )
             ).total_seconds()
             / 60,
-            0,
         )
 
     def is_send_still_unhealthy_required(
