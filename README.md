@@ -5,10 +5,11 @@
 2. Create venv install requirements.txt
 3. Get your [slack webhook url](#2-get-slack-webhook-url)
 4. Prepare your [configuration.json](#3-create-your-configurationjson-file)
-5. Run `main.py --test` (You should get hello message on slack) 
+5. Run `main.py --test` (You should get hello message on slack)
+   
    <img width="288" alt="image" src="https://github.com/user-attachments/assets/341a9b1e-d6af-4a48-88bb-f7044fafd2b9">
-6. Prepare script runner (I use [cron](#4-cron))
-7. I hope you enjoy!
+7. Prepare script runner (I use [cron](#4-cron))
+8. I hope you enjoy!
 
 You can also see logs [section](#5-logs).
 
