@@ -3,6 +3,10 @@
   "health_check_config": {
     "timeout": 3
   },
+  "monthly_summary_config": {
+    "send_monthly_summary_at_first_day_of_month": true,
+    "send_at_hour": "11:00"
+  },
   "slack_connector_config": {
     "send_healthy": false,
     "send_unhealthy": true,

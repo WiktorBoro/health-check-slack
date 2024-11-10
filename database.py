@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List
 
-from dtos import HealthResultDTO, SlackConnectorConfigDTO
+from dtos import HealthResultDTO, SlackConnectorConfigDTO, MonthlySummary
 
 
 class Database:
@@ -22,7 +22,7 @@ class Database:
         self._init()
         self.data = self._open()
 
-    def _init(self):
+    def _init(self) -> None:
         if not os.path.isfile(f"{self.current_path}/{self.DATABASE_FILE_NAME}"):
             with open(
                 f"{self.current_path}/{self.DATABASE_BASE_FILE_NAME}", "r"
@@ -33,13 +33,13 @@ class Database:
             ) as database_file:
                 json.dump(database_base_data, database_file)
 
-    def _open(self):
+    def _open(self) -> dict:
         with open(
             f"{self.current_path}/{self.DATABASE_FILE_NAME}", "r"
         ) as database_file:
             return json.load(database_file)
 
-    def commit(self):
+    def commit(self) -> None:
         with open(
             f"{self.current_path}/{self.DATABASE_FILE_NAME}", "w"
         ) as database_file:
@@ -52,7 +52,7 @@ class Database:
             for current_unhealthy in self.data.get("to_checks", {}).keys()
         ]
 
-    def add_unhealthy(self, *, new_unhealthy: List[HealthResultDTO]):
+    def add_unhealthy(self, *, new_unhealthy: List[HealthResultDTO]) -> None:
         current_unhealthy_urls = self.current_unhealthy_urls
         for unhealthy in new_unhealthy:
             if unhealthy.url not in current_unhealthy_urls:
@@ -66,7 +66,7 @@ class Database:
 
     def update_still_unhealthy_last_send(
         self, *, still_unhealthy: List[HealthResultDTO]
-    ):
+    ) -> None:
         current_unhealthy_urls = self.current_unhealthy_urls
         for unhealthy in still_unhealthy:
             if unhealthy.is_sent_to_slack and unhealthy.url in current_unhealthy_urls:
@@ -74,9 +74,38 @@ class Database:
                     "last_send_at"
                 ] = datetime.now().isoformat()
 
-    def remove_unhealthy(self, *, back_to_healthy: List[HealthResultDTO]):
+    def remove_unhealthy(self, *, back_to_healthy: List[HealthResultDTO]) -> None:
         for healthy in back_to_healthy:
             self.data["to_checks"].pop(healthy.url, None)
+
+    def update_monthly_summary(self, *, back_to_healthy: List[HealthResultDTO]) -> None:
+        year_month = datetime.now().strftime("%Y-%m")
+        if year_month not in self.data["monthly_summary"]:
+            self.data["monthly_summary"][year_month] = {}
+        for healthy in back_to_healthy:
+            if healthy.url not in self.data["monthly_summary"][year_month]:
+                self.data["monthly_summary"][year_month][healthy.url] = 0
+            self.data["monthly_summary"][year_month][
+                healthy.url
+            ] += self.get_how_long_was_unhealthy(url=healthy.url)
+
+    def get_summary_for_moth(
+        self,
+        *,
+        year_month: str,  # %Y-%m
+    ) -> List[MonthlySummary]:
+        return [
+            MonthlySummary(url=url, unhealthy_this_month=unhealthy_this_month)
+            for url, unhealthy_this_month in self.data["monthly_summary"][
+                year_month
+            ].items()
+        ]
+
+    def set_monthly_summary_as_send(self) -> None:
+        self.data["monthly_summary"]["already_send_this_month"] = True
+
+    def has_already_send_this_month(self) -> bool:
+        return self.data["monthly_summary"]["already_send_this_month"]
 
     def get_how_long_was_unhealthy(self, *, url: str) -> float:
         return round(

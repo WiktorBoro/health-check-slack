@@ -11,3 +11,4 @@ platformdirs==4.2.2
 requests==2.32.3
 slack_sdk==3.29.0
 urllib3==2.2.1
+aiohttp==3.10.10

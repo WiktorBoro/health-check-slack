@@ -20,8 +20,11 @@ class SlackConnector:
     )
     DEFAULT_STILL_UNHEALTHY_MESSAGE = "URL {url}, is still dead :firecracker::skull_and_crossbones::firecracker: Total dead time {how_long_was_unhealthy} min"
 
+    DEFAULT_MONTHLY_SUMMARY = "Summary for last month: {summary}"
+
     def __init__(
         self,
+        *,
         repository,
         slack_webhook_url: str,
         slack_connector_config: SlackConnectorConfigDTO,
@@ -73,6 +76,13 @@ class SlackConnector:
     def hello_message(self):
         self._send(text=self.config.hello_message or self.DEFAULT_HELLO_MESSAGE)
 
+    def send_monthly_summary(self, *, summary):
+        self._send(
+            text=(self.config.monthly_summary or self.DEFAULT_MONTHLY_SUMMARY).format(
+                summary=summary
+            )
+        )
+
     def send_if_there_no_unhealthy(self):
         if self.config.send_if_there_no_unhealthy:
             self._send(
@@ -107,3 +117,7 @@ class SlackConnector:
             logging.info(f"{datetime.now()} - send to slack: success - text: {text}")
         except AssertionError:
             logging.info(f"{datetime.now()} - send to slack: failed - text: {text}")
+        except Exception as e:
+            logging.info(
+                f"{datetime.now()} - send to slack: failed - text: {text}, {e}"
+            )

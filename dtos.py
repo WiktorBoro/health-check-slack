@@ -18,11 +18,18 @@ class SlackConnectorConfigDTO:
     no_unhealthy_message: str = ""
     back_to_healthy_message: str = ""
     still_unhealthy_message: str = ""
+    monthly_summary: str = ""
 
 
 @frozen(kw_only=True)
 class HealthCheckConfigDTO:
     timeout: int = 3
+
+
+@frozen(kw_only=True)
+class MonthlySummaryConfigDTO:
+    send_monthly_summary_at_first_day_of_month: bool = False
+    send_at_hour: str = ""
 
 
 @define
@@ -40,3 +47,9 @@ class HealthCheckDTO:
     unhealthy: List[HealthResultDTO]
     still_unhealthy: List[HealthResultDTO]
     back_to_healthy: List[HealthResultDTO]
+
+
+@frozen(kw_only=True)
+class MonthlySummary:
+    url: str
+    unhealthy_this_month: int  # sec

@@ -7,8 +7,9 @@ from logging.handlers import TimedRotatingFileHandler
 from typing import List
 
 from database import Database
-from dtos import SlackConnectorConfigDTO, HealthCheckConfigDTO
+from dtos import SlackConnectorConfigDTO, HealthCheckConfigDTO, MonthlySummaryConfigDTO
 from health_check import HealthCheck
+from send_monthly_summary import SendMonthlySummary
 from slack_connector import SlackConnector
 import to_checks_types as types
 
@@ -21,7 +22,7 @@ class Main:
     def __init__(
         self,
         *,
-        repository,
+        repository: Database,
         health_check: HealthCheck,
         slack_connector: SlackConnector,
     ):
@@ -29,7 +30,7 @@ class Main:
         self.slack_connector = slack_connector
         self.health_check = health_check
 
-    def execute(self, *, to_checks: List[types.ToChecksTypedDict]):
+    def execute(self, *, to_checks: List[types.ToChecksTypedDict]) -> None:
         new_unhealthy = []
         back_to_healthy = []
         still_unhealthy = []
@@ -54,6 +55,7 @@ class Main:
         self.repository.update_still_unhealthy_last_send(
             still_unhealthy=still_unhealthy
         )
+        self.repository.update_monthly_summary(back_to_healthy=back_to_healthy)
         self.repository.remove_unhealthy(back_to_healthy=back_to_healthy)
 
     def test(self):
@@ -66,19 +68,17 @@ if __name__ == "__main__":
     except IndexError:
         param = ""
 
-    logging.basicConfig(
-        filename=f"{current_path}/{logs_file_name}",
-        encoding="utf-8",
-        level=logging.INFO,
-    )
     handler = TimedRotatingFileHandler(
         filename=f"{current_path}/{logs_file_name}",
         when="D",
         interval=30,
     )
-    handler.setLevel(logging.INFO)
+    logging.basicConfig(
+        encoding="utf-8",
+        level=logging.INFO,
+        handlers=[handler],
+    )
     logger = logging.getLogger()
-    logger.addHandler(handler)
 
     repository = Database(current_path=current_path)
 
@@ -99,6 +99,10 @@ if __name__ == "__main__":
         **config.get("slack_connector_config", {})
     )
     health_check_config = HealthCheckConfigDTO(**config.get("health_check_config", {}))
+    monthly_summary_config = MonthlySummaryConfigDTO(
+        **config.get("monthly_summary_config", {})
+    )
+
     slack_connector = SlackConnector(
         repository=repository,
         slack_webhook_url=slack_webhook_url,
@@ -113,10 +117,16 @@ if __name__ == "__main__":
         slack_connector=slack_connector,
         health_check=health_check,
     )
+    send_monthly_summary = SendMonthlySummary(
+        config=monthly_summary_config,
+        repository=repository,
+        connector=slack_connector,
+    )
 
     if param == "--test":
         main.test()
     else:
+        send_monthly_summary.execute()
         main.execute(to_checks=to_checks)
 
     logging.info("-----------------------------------------------")
