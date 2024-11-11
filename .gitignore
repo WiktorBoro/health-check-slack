@@ -8,5 +8,5 @@ health_check_logs
 *.xml
 __pycache__
 __pycache__/*
-database.json
+*database.json*
 *logs*
