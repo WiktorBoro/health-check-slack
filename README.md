@@ -44,6 +44,14 @@ This param tells how long each request will take before it reaches timeout.
 },
 ```
 
+Monthly Summary configuration:
+```
+"monthly_summary_config": {
+ "send_monthly_summary_at_first_day_of_month": true, # send monthly summary
+ "send_at_hour": "11:00" # send at hour
+},
+```
+
 This section and all params of this is optional. Defaults are equal below example.
 ```
   "slack_connector_config": {
@@ -59,6 +67,7 @@ This section and all params of this is optional. Defaults are equal below exampl
     "no_unhealthy_message": "Everything is fine :green_heart:",
     "back_to_healthy_message": "URL {url}, back to live! :tada: Total dead time {how_long_was_unhealthy} min",
     "still_unhealthy_message": "URL {url}, is still dead :firecracker::skull_and_crossbones::firecracker: Total dead time {how_long_was_unhealthy} min"
+    "monthly_summary": "Summary for last month: {summary} The remaining services had 100% efficiency last month!:tada:"
   },
 
 ```
@@ -70,6 +79,7 @@ Available tags for each message (tags doesn't work only for `no_unhealthy_messag
 {status_code} # status_code after request
 {is_healthy} # true/fals
 {how_long_was_unhealthy} # in min, if url was healthy this tag return 0
+{summary} # only for monthly summary string of: f"{url_with_monthly_dead_time.url}: {url_with_monthly_dead_time.unhealthy_this_month} min, efficiency: {(self.AVERAGE_MINUTES_IN_MONTH-url_with_monthly_dead_time.unhealthy_this_month)/self.AVERAGE_MINUTES_IN_MONTH}%\n"
 ```
 
 Main section, `to_checks` required list of json (it can be one json of course).
