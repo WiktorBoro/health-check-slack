@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List
 
 import requests
-from requests import ConnectTimeout
+from requests.exceptions import ConnectTimeout, ReadTimeout
 
 from dtos import HealthResultDTO, HealthCheckDTO, HealthCheckConfigDTO
 
@@ -83,7 +83,7 @@ class HealthCheck:
                 param=param,
                 url=url,
             )
-        except ConnectTimeout:
+        except (ConnectTimeout, ReadTimeout):
             health_result = HealthResultDTO(
                 is_healthy=False,
                 status_code=408,
