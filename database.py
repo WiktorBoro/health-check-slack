@@ -94,6 +94,8 @@ class Database:
         *,
         year_month: str,  # %Y-%m
     ) -> List[MonthlySummary]:
+        if year_month not in self.data["monthly_summary"]:
+            return []
         return [
             MonthlySummary(url=url, unhealthy_this_month=unhealthy_this_month)
             for url, unhealthy_this_month in self.data["monthly_summary"][
