@@ -1,4 +1,4 @@
-# send_monthly_summary.py
+# monthly_summary.py
 from datetime import datetime, timedelta
 
 from database import Database
@@ -6,8 +6,9 @@ from dtos import MonthlySummaryConfigDTO
 from slack_connector import SlackConnector
 
 
-class SendMonthlySummary:
+class MonthlySummary:
     DEFAULT_SEND_AT_HOUR = "11:00"
+    AVERAGE_MINUTES_IN_MONTH = 43800
 
     def __init__(
         self,
@@ -56,7 +57,7 @@ class SendMonthlySummary:
 
         summary = ""
         for url_with_monthly_dead_time in summary_for_moth:
-            summary += f"{url_with_monthly_dead_time.url}: {url_with_monthly_dead_time.unhealthy_this_month} min\n"
+            summary += f"{url_with_monthly_dead_time.url}: {url_with_monthly_dead_time.unhealthy_this_month} min, efficiency: {(self.AVERAGE_MINUTES_IN_MONTH-url_with_monthly_dead_time.unhealthy_this_month)/self.AVERAGE_MINUTES_IN_MONTH}%\n"
 
         if summary:
             self.connector.send_monthly_summary(summary=summary)

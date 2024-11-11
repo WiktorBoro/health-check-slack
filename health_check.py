@@ -14,6 +14,7 @@ class HealthCheck:
 
     def __init__(
         self,
+        *,
         health_check_config: HealthCheckConfigDTO,
     ):
         self.config = health_check_config

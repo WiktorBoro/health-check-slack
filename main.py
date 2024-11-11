@@ -9,7 +9,7 @@ from typing import List
 from database import Database
 from dtos import SlackConnectorConfigDTO, HealthCheckConfigDTO, MonthlySummaryConfigDTO
 from health_check import HealthCheck
-from send_monthly_summary import SendMonthlySummary
+from monthly_summary import MonthlySummary
 from slack_connector import SlackConnector
 import to_checks_types as types
 
@@ -117,7 +117,7 @@ if __name__ == "__main__":
         slack_connector=slack_connector,
         health_check=health_check,
     )
-    send_monthly_summary = SendMonthlySummary(
+    send_monthly_summary = MonthlySummary(
         config=monthly_summary_config,
         repository=repository,
         connector=slack_connector,
